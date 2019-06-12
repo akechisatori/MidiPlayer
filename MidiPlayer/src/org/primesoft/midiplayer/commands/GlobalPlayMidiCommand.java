@@ -41,17 +41,22 @@
 package org.primesoft.midiplayer.commands;
 
 import java.io.File;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.primesoft.midiplayer.MusicPlayer;
 import static org.primesoft.midiplayer.MidiPlayerMain.say;
+
 import org.primesoft.midiplayer.midiparser.MidiParser;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 import org.primesoft.midiplayer.midiparser.NoteTrack;
 import org.primesoft.midiplayer.track.GlobalTrack;
-
+//import co
 /**
  * Play global midi music command
  * @author SBPrime
@@ -61,6 +66,7 @@ public class GlobalPlayMidiCommand extends BaseCommand {
     private final MusicPlayer m_player;
     private GlobalTrack m_currentTrack;
     private final JavaPlugin m_plugin;
+    public static String playing_name = "";
 
     public GlobalPlayMidiCommand(JavaPlugin plugin, MusicPlayer player) {
         m_plugin = plugin;
@@ -78,7 +84,7 @@ public class GlobalPlayMidiCommand extends BaseCommand {
         }
 
         Player player = cs instanceof Player ? (Player) cs : null;
-        NoteTrack noteTrack = MidiParser.loadFile(new File(m_plugin.getDataFolder(), fileName));
+        NoteTrack noteTrack = MidiParser.loadFile(new File(m_plugin.getDataFolder() + "/midi/", fileName));
         if (noteTrack == null) {
             say(player, "Error loading midi track");
             return true;
@@ -86,7 +92,15 @@ public class GlobalPlayMidiCommand extends BaseCommand {
             say(player, "Error loading midi track: " + noteTrack.getMessage());
             return true;
         }
-
+        playing_name = fileName.replace(".mid","").replace("_"," ");;
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                Bukkit.getOnlinePlayers().forEach((p) -> {
+                    p.sendActionBar(ChatColor.RED + "正在播放: " + ChatColor.GREEN + playing_name);
+                });
+            }
+        }.runTaskAsynchronously(m_plugin);
         final NoteFrame[] notes = noteTrack.getNotes();
         m_currentTrack = new GlobalTrack(m_plugin, notes, false);
         m_player.playTrack(m_currentTrack);

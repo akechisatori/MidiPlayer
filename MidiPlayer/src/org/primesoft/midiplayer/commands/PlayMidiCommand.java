@@ -105,7 +105,7 @@ public class PlayMidiCommand extends BaseCommand implements Listener {
             return true;
         }
 
-        NoteTrack noteTrack = MidiParser.loadFile(new File(m_plugin.getDataFolder(), fileName));
+        NoteTrack noteTrack = MidiParser.loadFile(new File(m_plugin.getDataFolder() + "/midi/", fileName));
         if (noteTrack == null) {
             say(player, "Error loading midi track");
             return true;

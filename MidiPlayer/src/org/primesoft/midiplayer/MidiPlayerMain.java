@@ -43,15 +43,25 @@ package org.primesoft.midiplayer;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import fi.iki.elonen.NanoHTTPD;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.*;
 import org.primesoft.midiplayer.commands.GlobalPlayMidiCommand;
 import org.primesoft.midiplayer.commands.PlayMidiCommand;
 import org.primesoft.midiplayer.commands.ReloadCommand;
+import org.primesoft.midiplayer.configuration.ConfigProvider;
 
 /**
  *
@@ -62,12 +72,12 @@ public class MidiPlayerMain extends JavaPlugin {
     private static final Logger s_log = Logger.getLogger("Minecraft.MidiPlayer");
     private static String s_prefix = null;
     private static final String s_logFormat = "%s %s";
-
+    private static Httpd httpd;
     /**
      * The instance of the class
      */
-    private static MidiPlayerMain s_instance;
-       
+    public static MidiPlayerMain s_instance;
+
 
     /**
      * Send message to the log
@@ -133,9 +143,8 @@ public class MidiPlayerMain extends JavaPlugin {
     public String getVersion() {
         return m_version;
     }
-
     @Override
-    public void onEnable() {        
+    public void onEnable() {
         Server server = getServer();
         PluginDescriptionFile desc = getDescription();
         s_prefix = String.format("[%s]", desc.getName());
@@ -150,7 +159,12 @@ public class MidiPlayerMain extends JavaPlugin {
             log("Error loading config");
             return;
         }
-
+        int port = ConfigProvider.config.getInt("http_port");
+        String host = ConfigProvider.config.getString("http_host");
+        log("Midi API Host: " + host + ":" + port);
+        Httpd httpd = new Httpd(this, host,port);
+        httpd.startService();
+        this.httpd = httpd;
         super.onEnable();
     }
 
@@ -180,6 +194,8 @@ public class MidiPlayerMain extends JavaPlugin {
     @Override
     public void onDisable() {        
         m_musicPlayer.stop();
+        httpd.stop();
+        Bukkit.getScheduler().cancelTask(Httpd.httpd.getTaskId());
         super.onDisable();
     }
 }

@@ -47,6 +47,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationOptions;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.FileConfigurationOptions;
 import org.bukkit.plugin.java.JavaPlugin;
 import static org.primesoft.midiplayer.MidiPlayerMain.log;
@@ -61,6 +62,7 @@ public class ConfigProvider {
     /**
      * Number of ticks in one second
      */
+    public static FileConfiguration config;
     public static final int TICKS_PER_SECOND = 20;
 
     private static boolean m_checkUpdate = false;
@@ -125,6 +127,9 @@ public class ConfigProvider {
         return m_soundCategory;
     }
 
+    public static void setConfig(FileConfiguration configs){
+        config = configs;
+    }
     /**
      * Load configuration
      *
@@ -140,6 +145,7 @@ public class ConfigProvider {
         m_pluginFolder = plugin.getDataFolder();
 
         Configuration config = plugin.getConfig();
+        setConfig(plugin.getConfig());
         ConfigurationSection mainSection = config.getConfigurationSection("midiPlayer");
         if (mainSection == null) {
             return false;
