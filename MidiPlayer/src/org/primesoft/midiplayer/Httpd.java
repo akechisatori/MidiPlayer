@@ -74,7 +74,8 @@ public class Httpd extends NanoHTTPD {
                    return responseJSON(Map.of(
                            "status",200,
                            "finished", currentTrack.isFinished(),
-                           "track", currentPlaying
+                           "track", currentPlaying,
+                           "progress", currentTrack.progress()
                    ));
                case "play":
                    if (currentTrack != null) {
@@ -125,15 +126,18 @@ public class Httpd extends NanoHTTPD {
                        }
                    }.runTaskAsynchronously(plugins);
                    return responseJSON(Map.of(
-                           "status",200
+                           "status",200,
+                           "progress", currentTrack.progress()
                    ));
                case "list":
                    File[] list = new File(plugins.getDataFolder() + "/midi/").listFiles();
                    ArrayList final_list = new ArrayList<>();
                    for (File file : list) {
-                       final_list.add(Map.of(
-                               "name", file.getName().replace(".mid","")
-                       ));
+                       if (!file.isDirectory()){
+                           final_list.add(Map.of(
+                                   "name", file.getName().replace(".mid","")
+                           ));
+                       }
                    }
                    return responseJSON(Map.of(
                            "status",200,

@@ -45,6 +45,8 @@ import org.bukkit.entity.Player;
 import org.primesoft.midiplayer.configuration.ConfigProvider;
 import org.primesoft.midiplayer.midiparser.NoteFrame;
 
+import java.util.Map;
+
 /**
  * Basic music track for playing notes
  * @author prime
@@ -128,7 +130,14 @@ public abstract class BaseTrack {
      * @return
      */
     protected Location getLocation() { return null; }
-    
+
+    public Map progress() {
+        return Map.of(
+                "tick", HALF_TICK,
+                "current_pos", m_pos,
+                "length", m_notes.length
+        );
+    }
     /**
      * Get the sound location
      * @param player The player to get the location for
